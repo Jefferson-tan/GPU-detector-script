@@ -6,6 +6,17 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Script description
+echo -e "Simple script to detect ${RED}G${GREEN}P${BLUE}U${NC}s in a system. You need to have lshw installed for it to work."
+
+# This part checks if lshw is installed or not
+if command -- lshw >/dev/null 2>&1; then
+    echo -e "\n====================\n${GREEN}lshw is installed ✅${NC}\n====================\n"
+else
+    echo -e $RED"lshw not found, please install lshw before running this script.\n"$NC
+    exit 1
+fi
+
 # ASCII art of Intel, AMD, and Nvidia compressed with gzip and encoded to base64
 intel_logo () {
     printf $BLUE
@@ -27,19 +38,13 @@ nvidia_logo () {
     base64 -d <<< "H4sIAAAAAAAAA6XTzwqAIAwH4HtPsUcVkujQoZMQBr2bT1IWxbbf0v7ELuqaH1OJ9i+FvhhdCm3OmtncRHT+vLDpuI3Ha1wv7bdQArNu3rEh4MYUHIteAk2x9hbAR7qTU0hlFSPb0vIO0G8ymYCsKMVy3sZIWFi5h8xR1AAnKv8ypfKjU0MNZvXQffHQ4W7exQu0Uivvy2eVnwNcNN1caPAKoOLBqQ8EAAA=" | gunzip
 }
 
-# Script description
-echo "Simple script to detect GPUs in a system. You need to have lshw installed for it to work."
-
-# This part checks if lshw is installed or not
-if command -- lshw >/dev/null 2>&1; then
-    echo -e $GREEN"lshw is installed\n"$NC
-else
-    echo -e $RED"lshw not found, please install lshw before running this script.\n"$NC
-    exit 1
-fi
-
 # Lists out GPU in a system, ignores errors about the command running in non-sudo mode, then filters out the vendors
 listGPU=$( (lshw -C video) 2>/dev/null | awk '$1=="vendor:"{$1=""; print}')
+
+# Counts the amount of GPUs detected based on their physical IDs
+countGPU=$( (lshw -C video) 2>/dev/null | awk '$1=="physical"{print $3}')
+
+echo -e "🭽▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔🭾\n▏Detected GPU(s): ${countGPU+1}▕\n🭼▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁🭿\n"
 
 # Logic for checking which GPU exists in system
 if (grep NVIDIA <<< $listGPU) 1>/dev/null ; then
