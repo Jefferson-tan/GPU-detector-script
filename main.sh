@@ -50,21 +50,25 @@ countGPU=$( (lshw -C video) 2>/dev/null | awk '$1=="physical"{print $3}')
 
 echo -e "🭽▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔🭾\n▏Detected GPU(s): ${countGPU+1}▕\n🭼▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁🭿\n"
 
+# Function for detecting intel GPU to avoid duplicated codes
+detect_intel () {
+    echo -e "${BLUE}Intel${NC} GPU detected"
+    intel_logo
+}
+
 # Logic for checking which GPU exists in system
 if (grep NVIDIA <<< $listGPU) 1>/dev/null ; then
     echo -e "${GREEN}NVIDIA${NC} GPU detected"
     nvidia_logo
 elif (grep Intel <<< $listGPU) 1>/dev/null ; then
-    echo Intel GPU detected
-    intel_logo
+    detect_intel
 fi
 
 if (grep AMD <<< $listGPU) 1>/dev/null ; then
     echo -e "${RED}AMD${NC} GPU detected"
     amd_logo
 elif (grep Intel <<< $listGPU) 1>/dev/null ; then
-    echo -e "${BLUE}Intel${NC} GPU detected"
-    intel_logo
+    detect_intel
 else
     echo Unknown or no GPU detected
 fi
